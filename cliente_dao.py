@@ -1,11 +1,14 @@
 import pickle
 from bot import Bot
+from bot_duplicado_exception import BotDuplicadoException
 
-class BotDao:
+
+class ClienteDAO:
     def __init__(self, datasource = "bot.pkl"):
         self.__datasource = datasource
         self.__object_cache = {}
-
+        self.__load()
+        
     @property
     def object_cache(self):
         return self.__object_cache
@@ -25,8 +28,11 @@ class BotDao:
         
     def add(self, bot):
         if isinstance(bot, Bot):
-            self.__object_cache[bot.nome()] = bot
-            self.__dump()
+            if bot.nome() not in self.__object_cache:
+                self.__object_cache[bot.nome()] = bot
+                self.__dump()
+            else:
+                raise BotDuplicadoException
 
     def get(self, nome):
         return self.__object_cache[nome]
@@ -38,13 +44,9 @@ class BotDao:
         return list(self.__object_cache.values())
 
     def importar(self, datasource):
-        try:
-            file = open(self.__datasource, 'rb')
-        except FileNotFoundError:
-            raise FileNotFoundError
-        else:
-            a = pickle.load(file)
-            self.__object_cache[a.nome()] = a
+        file = open(datasource, "rb")
+        objeto = pickle.load(file)
+        self.add(objeto)
 
     def exportar(self, bot, datasource= "export.pkl"):
         file = open(datasource, 'wb')

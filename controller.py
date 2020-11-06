@@ -1,53 +1,45 @@
-from bot_dao import BotDao
-from main_view import View
-from bot_view import BotView
-from sistema_bot import SistemaChatBot, FabricaBot
+from main_view import MainView
+from cliente_dao import ClienteDAO
 import PySimpleGUI as sg
+from bot_soneca import BotSoneca
+from bot_duplicado_exception import BotDuplicadoException
+
 
 class Controller:
     def __init__(self):
-        self.__window = View()
-        self.__botWindow = BotView()
-        self.__listaBots = FabricaBot().inicio()
-        self.__bot_dao = BotDao()
-        self.__sistema = SistemaChatBot("Crazy Bots")
-        
+        self.__window = MainView()
+        self.__cliente_dao = ClienteDAO()
+
     def comeca(self):
-        window = self.__window
+        self.__window.mostra_view()
         rodando = True
         while rodando:
-            window.mostra_view()
-            event, values = window.le_eventos()
-            print(event, values)
-            bots = self.__bot_dao.get_all()
-            nome_bots = ''
-            for bot in bots:
-                nome_bots += bot.nome()
-            window.atualiza_elemento("lista_bots", nome_bots)
-            if event ==  sg.WIN_CLOSED:
+            event, values = self.__window.le_eventos()
+            if event == sg.WIN_CLOSED:
                 rodando = False
-            #elif event == "importar"
+                
+            elif event == "refresh":
+                bots = [bot.nome() for bot in self.__cliente_dao.get_all()]
+                self.__window.atualiza_elemento("lista_bots", bots)
+                
+            elif event == "importar":
+                diretorio = sg.popup_get_file("Selecione o arquivo pkl do bot")
+                try:
+                    self.__cliente_dao.importar(diretorio)
+                except BotDuplicadoException:
+                    sg.popup_error("Bot já cadastrado no sistema")
 
-    def mostraWindow(self):
-        self.__window = View()
-
-    def mostraBotWindow(self):
-        self.__botWindow = BotView()
-
-    def atualizaWindow(self, elemento, valor):
-        self.__window.update(elemento, valor)
-
-    def fechaWindow(self):
-        self.__window.fecha()
-
-    def atualizaBotWindow(self, elemento, valor):
-        self.__botWindow.update(elemento, valor)
-
-    def fechaBotWindow(self):
-        self.__botWindow.fecha()
-
-    def exportarBot(self, bot):
-        self.__bot_dao.exportar(bot)
-
-    def importarBot(self, datasource):
-        self.__bot_dao.importar(datasource)
+            elif event == "exportar":
+                try:
+                    #listbox retorna uma lista com os itens selecionados, por enquanto só funciona com um bot
+                    bot = self.__cliente_dao.get(values["lista_bots"][0])
+                except IndexError:
+                    sg.popup_error("Selecione um bot")
+                else:
+                    #essa função só pega o diretório, então adiciono o nome do bot e a extensão pra exportar, por enquanto o usuário não pode escolher o nome do arquivo
+                    try:
+                        diretorio = sg.popup_get_folder("Selecione onde deseja salvar o seu bot") + f"/{bot.nome()}.pkl"
+                    except TypeError:
+                        pass #ignora e fecha a janela
+                    else:
+                        self.__cliente_dao.exportar(bot, diretorio)

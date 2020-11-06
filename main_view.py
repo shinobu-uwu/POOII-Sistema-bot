@@ -1,17 +1,18 @@
-import PySimpleGui as sg
+import PySimpleGUI as sg
 
-class View:
+class MainView:
     def __init__(self):
+        self.__theme = sg.theme("DarkAmber")
         self.__layout = []
         self.__window = sg.Window('Sistema Chatbot', self.__layout)
 
     def mostra_view(self):
         self.__layout = [
-                            [sg.Text(size = (10, 1)), sg.Text("Olá, esse é o sistema de chatbots da empresa CrazyBots"), sg.Text(size = (10, 1))],
-                            [sg.Combo(key = "lista_bots", readonly = True)],
-                            [sg.Button("Conversar com o bot", key = "conversa"), sg.Button("Importar bot", key = "import"), sg.Button("Exportar bot", key = "export")]
+                            [sg.Text("Olá, esse é o sistema de chatbots da empresa CrazyBots")],
+                            [sg.Listbox([], key = "lista_bots", size = (30, 5))],
+                            [sg.Button("Conversar", key = "conversa"), sg.Button("Importar", key = "import"), sg.Button("Exportar bot", key = "export"), sg.Button("Atualizar", key = "refresh")]
                         ]
-        self.__window = sg.Window("Sistema Chatbot", self.__layout)
+        self.__window = sg.Window("Sistema Chatbot", self.__layout, element_justification = "center")
         return self.__layout
 
     def atualiza_elemento(self, elemento, valor):
