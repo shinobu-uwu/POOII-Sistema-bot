@@ -39,7 +39,8 @@ class ClienteDAO:
 
     def remove(self, nome):
         self.__object_cache.pop(nome)
-
+        self.__dump()
+        
     def get_all(self):
         return list(self.__object_cache.values())
 
