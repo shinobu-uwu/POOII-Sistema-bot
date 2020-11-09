@@ -3,8 +3,6 @@ from cliente_dao import ClienteDAO
 import PySimpleGUI as sg
 from bot_modelo import BotModelo
 from bot_duplicado_exception import BotDuplicadoException
-from criacao_bot_view import CriacaoBotView
-from inserir_comando_view import InserirComandoView
 from comando_duplicado_exception import ComandoDuplicadoException
 
 
