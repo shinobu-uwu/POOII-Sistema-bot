@@ -6,6 +6,7 @@ from bot_duplicado_exception import BotDuplicadoException
 from comando_duplicado_exception import ComandoDuplicadoException
 from criacao_bot_view import CriacaoBotView
 from inserir_comando_view import InserirComandoView
+from conversar_bot_view import ConversarBotView
 
 
 class Controller:
@@ -21,7 +22,16 @@ class Controller:
             event, values = self.__window.le_eventos()
             if event == sg.WIN_CLOSED:
                 rodando = False
-                
+
+            elif event == "conversar":
+                #listbox retorna uma lista com os itens selecionados, por enquanto só funciona com um bot
+                try:
+                    bot = self.__cliente_dao.get(values["lista_bots"][0])
+                except IndexError:
+                    sg.popup_error("Selecione um bot")
+                else:
+                    self.conversar(bot)
+            
             elif event == "refresh":
                 self.__atualiza_bots()
                 
@@ -39,7 +49,6 @@ class Controller:
                 
             elif event == "exportar":
                 try:
-                    #listbox retorna uma lista com os itens selecionados, por enquanto só funciona com um bot
                     bot = self.__cliente_dao.get(values["lista_bots"][0])
                 except IndexError:
                     sg.popup_error("Selecione um bot")
@@ -122,3 +131,23 @@ class Controller:
                     
             elif event == "cancelar":
                 window.fecha()
+
+    def conversar(self, bot):
+        window = ConversarBotView()
+        rodando = True
+        while rodando:
+            event, values = window.le_eventos()
+            if event == sg.WIN_CLOSED:
+                rodando = False
+
+            elif event == "apresentacao":
+                texto = bot.apresentacao()
+                window.atualiza_elemento("resultado", texto)
+
+            elif event == "boas vindas":
+                texto = bot.boas_vindas()
+                window.atualiza_elemento("resultado", texto)
+
+            elif event == "despedida":
+                texto = bot.despedida()
+                window.atualiza_elemento("resultado", texto)
