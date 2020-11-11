@@ -31,7 +31,7 @@ class BotModelo(Bot):
         return self.__comandos[cmd][n]
 
     def boas_vindas(self):
-        n = random.randrange(len(self.__comandos["boas_vindas"]))
+        n = random.randrange(len(self.__comandos["boas vindas"]))
         return self.__comandos["boas vindas"][n]
 
     def despedida(self):
