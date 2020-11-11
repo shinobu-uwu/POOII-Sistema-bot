@@ -12,3 +12,6 @@ class InserirComandoView:
 
     def le_eventos(self):
         return self.__window.read()
+    
+    def fecha(self):
+        return self.__window.close()
