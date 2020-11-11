@@ -56,6 +56,7 @@ class Controller:
                 
             elif event == "criar":
                 self.criar_bot()
+                
             elif event == "remover":
                 try:
                     self.__cliente_dao.remove(values["lista_bots"][0])
@@ -63,7 +64,7 @@ class Controller:
                     sg.popup_error("Selecione um bot")
                 finally:
                     self.__atualiza_bots()
-                    
+            
     def __atualiza_bots(self):
         bots = [bot.nome() for bot in self.__cliente_dao.get_all()]
         self.__window.atualiza_elemento("lista_bots", bots)
@@ -88,3 +89,5 @@ class Controller:
 
             elif event == "cancelar":
                 window.fecha()
+
+    

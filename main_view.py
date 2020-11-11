@@ -12,8 +12,8 @@ class MainView:
                             [sg.Listbox(bots, key = "lista_bots", size = (30, 5))],
                             [sg.Button("Conversar", key = "conversa"), sg.Button("Importar", key = "importar"),
                              sg.Button("Exportar bot", key = "exportar"), sg.Button("Atualizar", key = "refresh"),
-                             sg.Button("Remover bot", key = "remover"), sg.Button("Criar bot", key = "criar"),
-                            ]
+                             sg.Button("Remover bot", key = "remover"), sg.Button("Criar bot", key = "criar"),],
+                            [sg.Button("Adicionar comando", key = "adicionar_comando")]
                         ]
         self.__window = sg.Window("Sistema Chatbot", self.__layout, element_justification = "center")
         return self.__layout
