@@ -4,6 +4,7 @@ import PySimpleGUI as sg
 from bot_modelo import BotModelo
 from bot_duplicado_exception import BotDuplicadoException
 from comando_duplicado_exception import ComandoDuplicadoException
+from criacao_bot_view import CriacaoBotView
 
 
 class Controller:
@@ -24,9 +25,13 @@ class Controller:
                 self.__atualiza_bots()
                 
             elif event == "importar":
-                diretorio = sg.popup_get_file("Selecione o arquivo pkl do bot")
                 try:
+                    diretorio = sg.popup_get_file("Selecione o arquivo pkl do bot")
+                    assert diretorio is not None
                     self.__cliente_dao.importar(diretorio)
+                #Se o usuário clicar em cancelar o diretório é None
+                except AssertionError:
+                    pass #Ignora e fecha a janela
                 except BotDuplicadoException:
                     sg.popup_error("Bot já cadastrado no sistema")
                 self.__atualiza_bots()
@@ -39,29 +44,47 @@ class Controller:
                     sg.popup_error("Selecione um bot")
                 else:
                     #essa função só pega o diretório, então adiciono o nome do bot e a extensão pra exportar, por enquanto o usuário não pode escolher o nome do arquivo
-                    diretorio = sg.popup_get_folder("Selecione onde deseja salvar o seu bot")
                     try:
+                        diretorio = sg.popup_get_folder("Selecione onde deseja salvar o seu bot")
                         assert diretorio is not None#Se o usuário clicar cancelar retorna None
                     except AssertionError:
-                        pass #ignora e fecha a janela
+                        pass
                     else:
                         diretorio +=  f"/{bot.nome()}.pkl"
                         self.__cliente_dao.exportar(bot, diretorio)
                 self.__atualiza_bots()
                 
             elif event == "criar":
-                try:
-                   nome = sg.popup_get_text("Digite o nome do bot")
-                   self.__cliente_dao.add(BotModelo(nome))
-                except BotDuplicadoException:
-                   sg.popup_error("Bot já cadastrado")
-                self.__atualiza_bots()
-                
+                self.criar_bot()
             elif event == "remover":
-                self.__cliente_dao.remove(values["lista_bots"][0])
-                self.__atualiza_bots()
+                try:
+                    self.__cliente_dao.remove(values["lista_bots"][0])
+                except IndexError:
+                    sg.popup_error("Selecione um bot")
+                finally:
+                    self.__atualiza_bots()
                     
     def __atualiza_bots(self):
         bots = [bot.nome() for bot in self.__cliente_dao.get_all()]
         self.__window.atualiza_elemento("lista_bots", bots)
         
+    def criar_bot(self):
+        window = CriacaoBotView()
+        rodando = True
+        while rodando:
+            event, values = window.le_eventos()
+            if event == sg.WIN_CLOSED:
+                break
+
+            elif event == "adicionar_bot":
+                bot = BotModelo(values["nome_bot"])
+                try:
+                    self.__cliente_dao.add(bot)
+                except BotDuplicadoException:
+                    sg.popup_error("Bot já cadastrado no sistema")
+                else:
+                    window.fecha()
+                    self.__atualiza_bots()
+
+            elif event == "cancelar":
+                window.fecha()
