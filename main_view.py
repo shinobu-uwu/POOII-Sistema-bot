@@ -10,7 +10,7 @@ class MainView:
         self.__layout = [
                             [sg.Text("Olá, esse é o sistema de chatbots da empresa CrazyBots")],
                             [sg.Listbox(bots, key = "lista_bots", size = (30, 5))],
-                            [sg.Button("Conversar", key = "conversa"), sg.Button("Importar", key = "importar"),
+                            [sg.Button("Conversar", key = "conversar"), sg.Button("Importar", key = "importar"),
                              sg.Button("Exportar bot", key = "exportar"), sg.Button("Atualizar", key = "refresh"),
                              sg.Button("Remover bot", key = "remover"), sg.Button("Criar bot", key = "criar"),],
                             [sg.Button("Adicionar comando", key = "adicionar_comando")]
