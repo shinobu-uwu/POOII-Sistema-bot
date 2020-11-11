@@ -5,6 +5,7 @@ from bot_modelo import BotModelo
 from bot_duplicado_exception import BotDuplicadoException
 from comando_duplicado_exception import ComandoDuplicadoException
 from criacao_bot_view import CriacaoBotView
+from inserir_comando_view import InserirComandoView
 
 
 class Controller:
@@ -64,7 +65,15 @@ class Controller:
                     sg.popup_error("Selecione um bot")
                 finally:
                     self.__atualiza_bots()
-            
+
+            elif event == "adicionar_comando":
+                try:
+                    bot = self.__cliente_dao.get(values["lista_bots"][0])
+                except IndexError:
+                    sg.popup_error("Selecione um bot")
+                else:
+                    self.adicionar_comando(bot)
+                
     def __atualiza_bots(self):
         bots = [bot.nome() for bot in self.__cliente_dao.get_all()]
         self.__window.atualiza_elemento("lista_bots", bots)
@@ -75,7 +84,7 @@ class Controller:
         while rodando:
             event, values = window.le_eventos()
             if event == sg.WIN_CLOSED:
-                break
+                rodando = False
 
             elif event == "adicionar_bot":
                 bot = BotModelo(values["nome_bot"])
@@ -90,4 +99,26 @@ class Controller:
             elif event == "cancelar":
                 window.fecha()
 
-    
+    def adicionar_comando(self, bot):
+        window = InserirComandoView(bot)
+        rodando = True
+        while rodando:
+            event, values = window.le_eventos()
+            if event == sg.WIN_CLOSED:
+                rodando = False
+
+            elif event == "inserir":
+                try:
+                    bot.adiciona_comando(values["comandos"][0], values["comando"])
+                    self.__cliente_dao.remove(bot.nome())
+                    self.__cliente_dao.add(bot)
+                except IndexError:
+                    sg.popup_error("Selecione um tipo de comando")
+                except ComandoDuplicadoException:
+                    sg.popup_error("Comando já existente no bot")
+                else:
+                    self.__atualiza_bots()
+                    window.fecha()
+                    
+            elif event == "cancelar":
+                window.fecha()
